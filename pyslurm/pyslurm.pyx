@@ -5167,7 +5167,7 @@ cdef class slurmdb_jobs:
         slurm.xfree(self.job_cond)
         slurm.slurmdb_connection_close(&self.db_conn)
 
-    def get(self, jobids=[], userids=[], starttime=0, endtime=0, flags = None, db_flags = None, clusters = []):
+    def get(self, jobids=[], userids=[], starttime=0, endtime=0, flags = None, db_flags = None, clusters = [], partitions=[]):
         """Get Slurmdb information about some jobs.
 
         Input formats for start and end times:
@@ -5201,6 +5201,12 @@ cdef class slurmdb_jobs:
             for _cluster in clusters:
                 _cluster = _cluster.encode("UTF-8")
                 slurm.slurm_addto_char_list_with_case(self.job_cond.cluster_list, _cluster, False)
+
+        if partitions:
+            self.job_cond.partition_list = slurm.slurm_list_create(NULL)
+            for _partition in partitions:
+                _partition = _partition.encode("UTF-8")
+                slurm.slurm_addto_char_list_with_case(self.job_cond.partition_list, _partition, False)
 
         if db_flags:
             if isinstance(db_flags, int):
